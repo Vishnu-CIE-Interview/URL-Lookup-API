@@ -9,6 +9,7 @@ import pymysql
 from datetime import datetime
 import logging
 import argparse
+from pymemcache.client import base
 from logging.handlers import SMTPHandler
 
 #Command line flag to turn on debug logging
@@ -86,6 +87,15 @@ def verify_sha_signature_in_datastore(computed_hash):
         return True
     return False
 
+
+def initialize_memcached_caching():
+    """
+    initialize_memcached_caching() will initialize a memcached client that will communicate with the memcached server that maintains a data cache
+    :return: the initialized memcached client 
+    """
+    memcached_client = base.Client(('localhost', 12345))
+    return memcached_client
+
 def response_builder(data,code,status_message):
     """
     response_builder() generates the API response payload that is returned to the client
@@ -110,7 +120,7 @@ def response_builder(data,code,status_message):
     return response
 
 
-def alert_critical_errors_on_email():   
+def alert_critical_errors_on_email():
     """
     alert_critical_errors_on_email() will initialize a mail handler to be used for email alerting
     :return: the initialized mail handler set to contain critical error logs
@@ -165,18 +175,32 @@ def app_function():
 
         user_sha_signature = create_sha_signature(auth_token)
         if verify_sha_signature_in_datastore(user_sha_signature):
-            app.logger.debug("User provided API token successfully authenticated, valid response will be send")
-            db_cursor = mysql.connection.cursor()
-            db_cursor.execute("select reputation from local_url_lookup where url='{}';".format(url))
-            url_category = db_cursor.fetchall()
+            app.logger.info("User provided API token successfully authenticated, valid response will be send")
+
+
+            #Attempt to get from cache first, only then go to DB
+
+            memcached_client = initialize_memcached_caching()
+            cached_result = memcached_client.get(url)
+
+            if cached_result:
+                app.logger.info("cached values found in memcached")
+                url_category = cached_result.decode('utf-8')
+            else:
+                app.logger.info("cached values not available, will query the database")
+                db_cursor = mysql.connection.cursor()
+                db_cursor.execute("select reputation from local_url_lookup where url='{}';".format(url))
+                url_category = db_cursor.fetchall()[0][0]
+                memcached_client.set(url, url_category,  expire=600)
+
 
             print(url_category)
-            if len(url_category):
 
+            if len(url_category):
                 status_code = 200
-                return response_builder({"URL category": {url: url_category[0][0]}}, status_code, "INFO: The request has succeeded."), status_code
+                return response_builder({"URL category": {url: url_category}}, status_code, "INFO: The request has succeeded."), status_code
             else:
-                #CLOUD LOOKUP BEFORE GENERAL CONDITON, SAVE IT TO LOCAL DB
+                #URL categorization not present
                 status_code = 200
                 return response_builder( {"URL category": {url: 'Uncategorized'}}, status_code, "INFO: The request has succeeded."), status_code
 
