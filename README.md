@@ -56,12 +56,12 @@ The following servers need to be set up before the main service can be initiated
 The Memcached server should be accessible and routable to the network where the API production server is deployed. If the server chosen is a Debian/Ubuntu machine, the Memcached service can be installed on it using the command:
 
 ```console
-$apt-get install memcached
+$sudo apt-get install memcached
 ```
 Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file as described earlier.
 
 ```console
-$memcached -p 12345
+$sudo memcached -p 12345
 ```
 
 ### Database server
@@ -82,6 +82,12 @@ mysql> source mysql_database_schema.sql
 ```
 
 ### SMTP Email Alerting Server
+
+The SMTP server is used as a forwarding point to send out production critical errors and alerts from the API service, which demand immediate administrator and/or developer attention. Ensure that this server is reachable on the network with the main API server. If a Debian/Ubuntu machine is used for this purpose, a console level notification system can be initialized using Python as follows. Once this is set up, the API service will reach out to this mailing server with any urgent and critical failures, with a log snippet of the stacktrace and crash details.
+
+```console
+$sudo python -m smtpd -n -c DebuggingServer 127.0.0.1:25 
+```
 
 ## API Reference
 
