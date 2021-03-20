@@ -14,6 +14,9 @@ The API provides URL lookup service that categorizes input URLs based on level o
 ## Technology and frameworks used
 
 <b>Built with:</b>
+1. Flask API Framework: parallelprojects.com/p/flask
+2. Memcached Distributed Caching System: memcached.org
+3. MySQL Database Service: dev.mysql.com
 
 ## Features
 
