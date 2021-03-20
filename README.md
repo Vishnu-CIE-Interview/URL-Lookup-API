@@ -48,22 +48,22 @@ SNMP_TO_ADDRESS=administrator@company.com
 
 The following servers need to be set up before the main service can be initiated. 
 
-##### Memcached Server
+### Memcached Server
 
-The Memcached server should be accessible and routable to the network where the API production server is deployed. If the Memcached server is a Debian/Ubuntu machine, a memcached can be installed using the command:
+The Memcached server should be accessible and routable to the network where the API production server is deployed. If the server chosen is a Debian/Ubuntu machine, the Memcached service can be installed on it using the command:
 
 ```console
 $apt-get install memcached
 ```
-Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file.
+Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file as described earlier.
 
 ```console
 $memcached -p 12345
 ```
 
-##### Database server
+### Database server
 
-The MySQL database contains the URL categorization based on malware types. The schema for the database is available in the file mysql_database_schema.sql. The database server should be accessible and routable to the main API server. MySQL should be installed on the server. If the server is Debian/Ubuntu based, MySQL can be installed as follows:
+The MySQL database contains the URL categorization based on malware types. The schema for the database is available in the file mysql_database_schema.sql. The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
 
 ```console
 $sudo apt-get install mysql-server
@@ -78,7 +78,7 @@ Create the database and tables necessary for the API service as follows by sourc
 mysql> source mysql_database_schema.sql
 ```
 
-##### SMTP Email Alerting Server
+### SMTP Email Alerting Server
 
 ## API Reference
 
