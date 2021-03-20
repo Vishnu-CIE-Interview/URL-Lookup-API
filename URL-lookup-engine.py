@@ -7,6 +7,49 @@ import hashlib
 import os
 import pymysql
 from datetime import datetime
+import logging
+import argparse
+from logging.handlers import SMTPHandler
+
+#Command line flag to turn on debug logging
+
+
+def initialize_command_line_args():
+
+    """
+    initialize_command_line_args() initiates CLI flags, which the server operator can use to enable debug level logging or email alerting of errors
+    :return: the flags used to activate or disable the debug logging and email alerting
+    """
+
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                     description="API lookup service to detect maliciousness of URLs")
+    parser.add_argument('--debug', dest='DEBUG_FLAG', required=False,
+                        help='Flag to turn on debug level logging when needed. Accepted values are 1 or 0.', default='0', choices=['0', '1'])
+    parser.add_argument('--email_alerts', dest='EMAIL_ALERT_FLAG', required=False,
+                        help='Flag to turn on email alerts to notify critical server errors that need immediate action. Accepted values are 1 or 0.', default='0', choices=['0', '1'])
+
+    args, unknown = parser.parse_known_args()
+
+    DEBUG_FLAG = args.DEBUG_FLAG
+    EMAIL_ALERT_FLAG = args.EMAIL_ALERT_FLAG
+
+    return [DEBUG_FLAG, EMAIL_ALERT_FLAG]
+
+def debug_and_email_alert_enabler(cli_flags,app):
+    """
+    debug_and_email_alert_enabler() instantiates the logging feature at appropriate levels
+    :return: None
+    """
+    #enable debug level logging if applicable
+    DEBUG_FLAG = cli_flags[0]
+    if {'0': False, '1': True}[DEBUG_FLAG]:
+        app.logger.setLevel(logging.DEBUG)
+
+
+    #add alert mail handling if applicable
+    EMAIL_FLAG = cli_flags[1]
+    if {'0': False, '1': True}[EMAIL_FLAG]:
+        app.logger.addHandler(alert_critical_errors_on_email())
 
 
 def create_sha_signature(access_token):
@@ -66,16 +109,44 @@ def response_builder(data,code,status_message):
     }
     return response
 
+
+def alert_critical_errors_on_email():   
+    """
+    alert_critical_errors_on_email() will initialize a mail handler to be used for email alerting
+    :return: the initialized mail handler set to contain critical error logs
+    """
+
+    mail_handler = SMTPHandler(
+        mailhost=('127.0.0.1',25),
+        fromaddr='API-error-monitoring@cisco.com',
+        toaddrs=['vischan2@cisco.com'],
+        subject='ATTENTION : Critical Application Error - Action Needed!'
+    )
+    mail_handler.setLevel(logging.ERROR)
+    mail_handler.setFormatter(logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    ))
+
+    return mail_handler
+
+
 def app_function():
 
     app = Flask(__name__)
     mysql = MySQL(app)
+    app.logger.setLevel(logging.INFO)
+
+    cli_flags = initialize_command_line_args()
+    debug_and_email_alert_enabler(cli_flags,app)
+
 
     #to_do: store these as env variables
     app.config['MYSQL_HOST'] = 'localhost'
     app.config['MYSQL_DB'] = 'urlengine'
     app.config['MYSQL_USER'] = os.getenv('MYSQL_USER')
     app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+
+
 
 
     @app.errorhandler(Exception)
@@ -94,32 +165,37 @@ def app_function():
 
         user_sha_signature = create_sha_signature(auth_token)
         if verify_sha_signature_in_datastore(user_sha_signature):
-
+            app.logger.debug("User provided API token successfully authenticated, valid response will be send")
             db_cursor = mysql.connection.cursor()
             db_cursor.execute("select reputation from local_url_lookup where url='{}';".format(url))
             url_category = db_cursor.fetchall()
 
             print(url_category)
             if len(url_category):
-                return response_builder({"URL category": {url: url_category[0][0]}}, 200, "INFO: The request has succeeded."), 200
+
+                status_code = 200
+                return response_builder({"URL category": {url: url_category[0][0]}}, status_code, "INFO: The request has succeeded."), status_code
             else:
                 #CLOUD LOOKUP BEFORE GENERAL CONDITON, SAVE IT TO LOCAL DB
-                return response_builder( {"URL category": {url: 'Uncategorized'}}, 200, "INFO: The request has succeeded."), 200
+                status_code = 200
+                return response_builder( {"URL category": {url: 'Uncategorized'}}, status_code, "INFO: The request has succeeded."), status_code
 
 
         else:
-
-            return response_builder("",401,"ERROR: Unauthorized. The provided API token is not a valid registered token."), 401
+            app.logger.info("User provided API token could not be authenticated with the stored hash on datastore")
+            status_code = 401
+            return response_builder("",status_code,"ERROR: Unauthorized. The provided API token is not a valid registered token."), status_code
 
     @app.route('/<path:path>')
     @app.route('/', defaults={'path': None})
     def unsupported_resource(path):
-        return response_builder("", 501,
+        status_code = 404
+        return response_builder("", status_code,
                                 "ERROR: The server does not support the functionality [{}] to fulfill this request. "
                                 "This could be because the requested URL was not found on the server or a valid URL was not provided. "
-                                "If you entered the URL manually, please re-check the URL and try again.".format(path)), 501
+                                "If you entered the URL manually, please re-check the URL and try again.".format(path)), status_code
 
     return app
 
 if __name__ == '__main__':
-    app_function().run(host='0.0.0.0', port=5001, debug=True)
+    app_function().run(host='0.0.0.0', port=5002, debug=True)
