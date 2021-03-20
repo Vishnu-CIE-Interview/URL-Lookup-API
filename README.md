@@ -23,6 +23,62 @@ The API provides URL lookup service that categorizes input URLs based on level o
 
 ## Installation
 
+The .env file contains the user configurable variables that the main API service will auto-configure for providing access to caching, database and email-alerting servers. 
+
+Before deploying the server into production, change the following environmental variables listed in this file.
+
+The initial values listed here are only placeholder entries.
+
+The server key, credentials or IP addresses should NOT be exposed outside of the production server.
+
+Contents of .env file that needs to be configured by the user:
+```console
+API_KEY=serverspecial
+MYSQL_HOST=127.0.0.1
+MYSQL_DB=urlengine
+MYSQL_USER=root
+MYSQL_PASSWORD=admin123
+MEMCACHED_SERVER=127.0.0.1
+MEMCACHED_PORT=12345
+SNMP_MAIL_SERVER=127.0.0.1
+SNMP_MAIL_PORT=25
+SNMP_FROM_ADDRESS=API-error-monitoring@URLService.com
+SNMP_TO_ADDRESS=administrator@company.com
+```
+
+The following servers need to be set up before the main service can be initiated. 
+
+##### Memcached Server
+
+The Memcached server should be accessible and routable to the network where the API production server is deployed. If the Memcached server is a Debian/Ubuntu machine, a memcached can be installed using the command:
+
+```console
+$apt-get install memcached
+```
+Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file.
+
+```console
+$memcached -p 12345
+```
+
+##### Database server
+
+The MySQL database contains the URL categorization based on malware types. The schema for the database is available in the file mysql_database_schema.sql. The database server should be accessible and routable to the main API server. MySQL should be installed on the server. If the server is Debian/Ubuntu based, MySQL can be installed as follows:
+
+```console
+$sudo apt-get install mysql-server
+$sudo mysql_secure_installation
+$sudo systemctl enable mysql
+$sudo mysql -u root -p
+$mysql>
+```
+Create the database and tables necessary for the API service as follows by sourcing the schema file as follows:
+
+```console
+mysql> source mysql_database_schema.sql
+```
+
+##### SMTP Email Alerting Server
 
 ## API Reference
 
