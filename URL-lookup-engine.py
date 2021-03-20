@@ -11,7 +11,7 @@ import logging
 import argparse
 from pymemcache.client import base
 from logging.handlers import SMTPHandler
-
+from flasgger import Swagger
 #Command line flag to turn on debug logging
 
 
@@ -91,7 +91,7 @@ def verify_sha_signature_in_datastore(computed_hash):
 def initialize_memcached_caching():
     """
     initialize_memcached_caching() will initialize a memcached client that will communicate with the memcached server that maintains a data cache
-    :return: the initialized memcached client 
+    :return: the initialized memcached client
     """
     memcached_client = base.Client(('localhost', 12345))
     return memcached_client
@@ -144,6 +144,7 @@ def app_function():
 
     app = Flask(__name__)
     mysql = MySQL(app)
+    swagger = Swagger(app)
     app.logger.setLevel(logging.INFO)
 
     cli_flags = initialize_command_line_args()
@@ -168,9 +169,45 @@ def app_function():
     @app.route('/urlinfo')
     def urlinfo():
 
-        #try:
+        """ endpoint that returns the URL lookup categorization
+        The service provides URL lookup that categorizes input URLs based on level of maliciousness.
+        ---
+        info:
+          title: URL Lookup API
+          description: The service provides URL lookup that categorizes input URLs based on level of maliciousness.
+          version: 1.0.0
+        basePath: /v1
+        get:
+          summary: Returns URL Lookup response
+          description: The resource accepts an URL as a query parameter, and returns the category in the response payload.
+          produces:
+            - application/json
+        parameters:
+            -   in: query
+                name: query
+                type: string
+                description: The URL that the user provides for lookup.
+                required: true
+            -   in: header
+                name: X-Api-Key
+                type: string
+                description: The user token used for authentication to access the API service.
+                required: true
+        responses:
+            200:
+                description: URL Lookup request was successfully processes and responded.
+            401:
+                description: User provided API-token could not be authenticated.
+            404:
+                description: The server does not support the requested resource functionality to fulfill this request.
+            500:
+                description: The request could not be processed at this moment due to an Internal Server Error.
+        schema:
+            type: object
+   """
+
         headers = request.headers
-        auth_token = headers.get("X-Api-Key") #expect am auth token assigned to user as "user-token-555"
+        auth_token = headers.get("X-Api-Key") #expect an auth token assigned to user as "user-token-555"
         url = request.args.get('query') #fetch url passed as an API query
 
         user_sha_signature = create_sha_signature(auth_token)
@@ -190,17 +227,18 @@ def app_function():
                 app.logger.info("cached values not available, will query the database")
                 db_cursor = mysql.connection.cursor()
                 db_cursor.execute("select reputation from local_url_lookup where url='{}';".format(url))
-                url_category = db_cursor.fetchall()[0][0]
-                memcached_client.set(url, url_category,  expire=600)
+                query_fetch = db_cursor.fetchall()
+                if query_fetch:
+                    url_category = query_fetch()[0][0]
+                    memcached_client.set(url, url_category,  expire=600)
+                else:
+                    url_category="" #uncategorized URL in the local datastore
 
 
-            print(url_category)
-
-            if len(url_category):
+            if len(url_category): #categorization exists
                 status_code = 200
                 return response_builder({"URL category": {url: url_category}}, status_code, "INFO: The request has succeeded."), status_code
-            else:
-                #URL categorization not present
+            else: #categorization does not exist
                 status_code = 200
                 return response_builder( {"URL category": {url: 'Uncategorized'}}, status_code, "INFO: The request has succeeded."), status_code
 
@@ -215,11 +253,11 @@ def app_function():
     def unsupported_resource(path):
         status_code = 404
         return response_builder("", status_code,
-                                "ERROR: The server does not support the functionality [{}] to fulfill this request. "
+                                "ERROR: The server does not support the functionality defined by [{}], to fulfill this request. "
                                 "This could be because the requested URL was not found on the server or a valid URL was not provided. "
                                 "If you entered the URL manually, please re-check the URL and try again.".format(path)), status_code
 
     return app
 
 if __name__ == '__main__':
-    app_function().run(host='0.0.0.0', port=5002, debug=True)
+    app_function().run(host='0.0.0.0', port=5003, debug=True)
