@@ -64,6 +64,7 @@ Once a critical error has put the system in a state unable to render its service
 Compatability for versioning ensures that newer version changes can be easily incorporated into existing design, without breaking older APIs. This will ensure backward compatibility for our clients and not take them by surprise when we publish new changes into the future. Older clients can continue to use the older API without breaking their usage workflows, while new clients can choose to test and incorporate the newer version.
 
 
+
 ## Installation
 
 The main server listening to API requests is where the Flask application running on Python 3.9.2 is deployed. This can be a Debian/Ubuntu, CentOS or any Linux based system. 
@@ -91,7 +92,7 @@ The initial values listed here are only placeholder entries.
 The server key, credentials or IP addresses should NOT be exposed outside of the production server.
 
 Contents of .env file that needs to be configured by the user:
-```console
+```shell
 API_KEY=serverspecial
 MYSQL_HOST=127.0.0.1
 MYSQL_DB=urlengine
