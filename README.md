@@ -67,16 +67,12 @@ Compatability for versioning ensures that newer version changes can be easily in
 
 The main server listening to API requests is where the Flask application running on Python 3.9.2 is deployed. This can be a Debian/Ubuntu, CentOS or any Linux based system. 
 
-The application directory consists of three files:
-
-1. URL-lookup-engine.py 
-2. requirements.txt
-3. .env 
-
 The first step is to install the dependencies:
 
 ```console
-$sudo pip3 install -r requirements.txt
+$ python3 -m venv env
+$ source env/bin/activate
+$ sudo pip3 install -r requirements.txt
 ```
 
 After the dependencies are installed, we need to configure the environmental variables from .env file. 
@@ -127,6 +123,10 @@ The data dump provided contains URL lookup malware categorization for 12500+ URL
 
 The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'. This froms the backend datastore for the URL Lookup API service.
 
+```console
+$ cd database/
+```
+
 The schema for the database is available in the file **mysql_database_schema.sql** and the data dump containing the categorization of 12500+ URLs is available in the file **url-lookup-datadump.sql**. 
 
 The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
@@ -161,10 +161,11 @@ We are now ready to deploy the API server into production.
 
 ## Deployment
 
-The supported command line arguments can be checked as follows:
+The supported command line arguments can be verified as follows:
 ```
-$ python3 URL-lookup-engine.py -h
-usage: URL-lookup-engine.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
+$ cd app/
+$ python3 url-lookup-service.py -h
+usage: url-lookup-service.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
 
 API lookup service to detect maliciousness of URLs
 
@@ -176,7 +177,7 @@ optional arguments:
 
 In order to deploy the service:
 ```console
-$ python3 URL-lookup-engine.py --debug 0 --email_alerts 1
+$ python3 url-lookup-service.py --debug 0 --email_alerts 1
 ```
 The service is now listening on the IP address and port specified in the .env configuration file. 
 
