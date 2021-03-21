@@ -31,7 +31,7 @@ def app_function():
             },
             "version": "1.0"
         },
-        "basePath": "/urlinfo?query=<url>",
+        "basePath": "/urlinfo/1?query=<url>",
         "schemes": [
             "http"
         ]
