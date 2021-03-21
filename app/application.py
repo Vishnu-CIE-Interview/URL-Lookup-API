@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, redirect, url_for
 from flask_mysqldb import MySQL
 from flasgger import Swagger
 from dotenv import load_dotenv
@@ -57,8 +57,8 @@ def app_function():
         return response_builder("", 500,
                                 "ERROR: The request could not be processed at this moment due to an Internal Server Error."), 500
 
-    @app.route('/urlinfo')
-    def urlinfo():
+    @app.route('/urlinfo/1')
+    def urlinfo_v1():
 
         """Route endpoint that returns the URL lookup categorization
         ---
@@ -138,14 +138,23 @@ def app_function():
             return response_builder("", status_code,
                                     "ERROR: Unauthorized. The provided API token is not a valid registered token."), status_code
 
+
+
+    @app.route('/urlinfo/2')
+    def urlinfo_v2():
+        '''
+        Placeholder route for version 2 of the API. Currently, this resource is not published.
+        '''
+        return redirect(url_for('unsupported_resource'))
+
+
     @app.route('/<path:path>')
     @app.route('/', defaults={'path': None})
     def unsupported_resource(path):
         status_code = 404
         return response_builder("", status_code,
-                                "ERROR: The server does not support the functionality [{}] to fulfill this request. "
+                                "ERROR: The server does not support the functionality to fulfill this request. "
                                 "This could be because the requested URL was not found on the server or a valid URL was not provided. "
-                                "If you entered the URL manually, please re-check the URL and try again.".format(
-                                    path)), status_code
+                                "If you entered the URL manually, please re-check the URL and try again."), status_code
 
     return app
