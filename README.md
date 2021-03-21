@@ -118,7 +118,6 @@ optional arguments:
   -h, --help            show this help message and exit
   --debug {0,1}         Flag to turn on debug level logging when needed. Accepted values are 1 or 0. (default: 0)
   --email_alerts {0,1}  Flag to turn on email alerts to notify critical server errors that need immediate action. Accepted values are 1 or 0. (default: 0)
-
 ```
 
 In order to deploy the service:
@@ -162,6 +161,17 @@ The response payload to this request will be as follows:
 ```
 
 ## API Reference
+
+The URL Lookup API service has a specification model defined based on Swagger, which is OpenAPI specification compliant.  
+
+The OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs. An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
+
+Once the service is deployed, navigate to http://<serverIP>:<serverPort>/apidocs to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
+
+Once this specification page is visited, this is what is seen on the web browser page:
+
+<img width="1672" alt="page1spec" src="https://user-images.githubusercontent.com/81005592/111889848-7f18be00-89a1-11eb-94ed-4e8fe25b7d8f.png">
+<img width="1683" alt="page2spec" src="https://user-images.githubusercontent.com/81005592/111889850-82ac4500-89a1-11eb-9564-2a7ebb7b21f2.png">
 
 
 ## Tests
