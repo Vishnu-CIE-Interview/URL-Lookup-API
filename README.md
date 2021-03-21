@@ -213,6 +213,30 @@ The response payload to this request will be as follows, along with a 200 status
   }
 }
 ```
+Let us try another URL:
+```console
+curl -X GET "http://localhost:5000/urlinfo?query=m.faceebok.com-listing-id272178211.list781039942.com%2Fprofile.html" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+The response payload is received with a 200 status code. The URL has been classified as **Adware**.
+```shell
+{
+  "data": {
+    "URL category": {
+      "m.faceebok.com-listing-id272178211.list781039942.com/profile.html": "Adware"
+    }
+  },
+  "info": {
+    "engine": {
+      "version": "1.0"
+    },
+    "timestamp": "Sun, 21 Mar 2021 02:39:16 GMT"
+  },
+  "response_status": {
+    "code": 200,
+    "message": "INFO: The request has succeeded."
+  }
+}
+```
 
 Similarly, here is another URL lookup request:
 
