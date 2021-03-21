@@ -48,7 +48,7 @@ The initial values listed here are only placeholder entries.
 The server key, credentials or IP addresses should NOT be exposed outside of the production server.
 
 Contents of .env file that needs to be configured by the user:
-```console
+```shell
 API_KEY=serverspecial
 MYSQL_HOST=127.0.0.1
 MYSQL_DB=urlengine
