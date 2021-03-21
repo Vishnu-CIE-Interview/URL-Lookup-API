@@ -8,12 +8,9 @@ The API provides URL lookup service that categorizes input URLs based on level o
 ## Motivation
 
 
-## Screenshots
-
-
 ## Technology and frameworks used
 
-<b>Built with:</b>
+###Built with:###
 1. Flask API Framework: parallelprojects.com/p/flask
 2. Memcached Distributed Caching System: memcached.org
 3. MySQL Database Service: dev.mysql.com
@@ -267,7 +264,10 @@ The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 } 
 ```
 It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
-
+```
+curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
+```
+401 Unauthorized response is received as the token is unrecognized by the API server.
 ```shell
 {
   "data": "",
