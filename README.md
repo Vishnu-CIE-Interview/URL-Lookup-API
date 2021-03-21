@@ -118,7 +118,6 @@ optional arguments:
   -h, --help            show this help message and exit
   --debug {0,1}         Flag to turn on debug level logging when needed. Accepted values are 1 or 0. (default: 0)
   --email_alerts {0,1}  Flag to turn on email alerts to notify critical server errors that need immediate action. Accepted values are 1 or 0. (default: 0)
-
 ```
 
 In order to deploy the service:
@@ -130,18 +129,18 @@ The service is now listening on the IP address and port specified in the .env co
 
 ## How to use the service?
 
-URL Lookup API service is an authentication based service. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an X-API-Key. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
+URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
 
 A sample client side cURL request and response from the API server will be as follows:
 
-```shell
+```console
 $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 
 Here, the URL 'http://www.amazon.com' is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
 
-The response payload to this request will be as follows:
-```python3
+The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
+```shell
 {
   "data": {
     "URL category": {
@@ -161,7 +160,122 @@ The response payload to this request will be as follows:
 }
 ```
 
+Similarly, here is another URL lookup request:
+
+```console
+curl -X GET "http://localhost:5000/urlinfo?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+The response payload is received with a 200 status code. The URL has been classified as **Ransomware**.
+```shell
+{
+  "data": {
+    "URL category": {
+      "http://royalmail-uk-deliveries.com/billing.php": "Ransomware"
+    }
+  }, 
+  "info": {
+    "engine": {
+      "version": "1.0"
+    }, 
+    "timestamp": "Sat, 20 Mar 2021 17:50:20 GMT"
+  }, 
+  "response_status": {
+    "code": 200, 
+    "message": "INFO: The request has succeeded."
+  }
+}
+```
+As a final example, we will lookup the following URL:
+```console
+curl -X GET "http://localhost:5000/urlinfo?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+The lookup categorizes this URL as Spyware, and a 200 status code is returned.
+```shell
+{
+  "data": {
+    "URL category": {
+      "www.o2billingfail.com/Login": "Spyware"
+    }
+  }, 
+  "info": {
+    "engine": {
+      "version": "1.0"
+    }, 
+    "timestamp": "Sat, 20 Mar 2021 17:57:54 GMT"
+  }, 
+  "response_status": {
+    "code": 200, 
+    "message": "INFO: The request has succeeded."
+  }
+} 
+```
+It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
+
+```shell
+{
+  "data": "",
+  "info": {
+    "engine": {
+      "version": "1.0"
+    },
+    "timestamp": "Sat, 20 Mar 2021 18:02:01 GMT"
+  },
+  "response_status": {
+    "code": 401,
+    "message": "ERROR: Unauthorized. The provided API token is not a valid registered token."
+  }
+}
+```
+
 ## API Reference
+
+The URL Lookup API service has a specification model defined based on Swagger, which is OpenAPI specification compliant.  
+
+As per definition, the OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs. An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
+
+Once the service is deployed, navigate to http://<serverIP>:<serverPort>/apidocs to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
+
+Once this specification page is visited, this is what is seen on the web browser page:
+
+<img width="1672" alt="page1spec" src="https://user-images.githubusercontent.com/81005592/111889848-7f18be00-89a1-11eb-94ed-4e8fe25b7d8f.png">
+<img width="1683" alt="page2spec" src="https://user-images.githubusercontent.com/81005592/111889850-82ac4500-89a1-11eb-9564-2a7ebb7b21f2.png">
+
+Click on 'Try it out' and enter values in the query and X-Api-Key input sections, and click 'Execute'. The request and response content will be displayed as follows:
+
+<img width="1669" alt="page3spec" src="https://user-images.githubusercontent.com/81005592/111889943-37defd00-89a2-11eb-926d-0cb4793e3b2d.png">
+<img width="1671" alt="page4spec" src="https://user-images.githubusercontent.com/81005592/111889945-39a8c080-89a2-11eb-83d9-0fff12aef1d8.png">
+
+## Troubleshooting Failures
+
+All logging from the application code will be written to URL-api-engine.log in the same directory from where the service is being executed. Detailed logs regarding any failures and time of event, along with the call stack can be isolated in this log file.
+
+Additional debuggging can be enabled by tuning the CLI flag on for enabling debug level logs. This is advised where a critical error needs to be isolated, where additional visibility into the functionality will be beneficial. 
+
+To turn on debug level logs while deploying the application, pass the following flag as 1. By default, debug level logging is disabled. 
+
+```shell
+$ python3 URL-lookup-engine.py --debug 1 
+```
+Additionally, since this is a mission critical service as data path traffic will be waiting on the API service to function normally, any major errors should be flagged immediately and the administrator or on-call engineer notified. To enable this functionality, SMTP based email alert forwarding for major errors can be enabled as follows. By default, this feature stays turned off.
+
+```shell
+$ python3 URL-lookup-engine.py --email_alerts 1
+```
+A sample email notification will be as follows:
+```shell
+---------- MESSAGE FOLLOWS ----------
+From: API-error-monitoring@URLService.com
+To: engineer@company-name.com
+Subject: ATTENTION : Critical Application Error - Action Needed!
+Date: Sat, 20 Mar 2021 17:30:13 -0700
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-Peer: 127.0.0.1
+
+[2021-03-20 17:30:13,229] ERROR in URL-lookup-engine: Critical application error: Authentication service is not responding.
+------------ END MESSAGE ------------
+```
 
 
 ## Tests
