@@ -67,16 +67,12 @@ Compatability for versioning ensures that newer version changes can be easily in
 
 The main server listening to API requests is where the Flask application running on Python 3.9.2 is deployed. This can be a Debian/Ubuntu, CentOS or any Linux based system. 
 
-The application directory consists of three files:
-
-1. URL-lookup-engine.py 
-2. requirements.txt
-3. .env 
-
 The first step is to install the dependencies:
 
 ```console
-$sudo pip3 install -r requirements.txt
+$ python3 -m venv env
+$ source env/bin/activate
+$ sudo pip3 install -r requirements.txt
 ```
 
 After the dependencies are installed, we need to configure the environmental variables from .env file. 
@@ -127,6 +123,10 @@ The data dump provided contains URL lookup malware categorization for 12500+ URL
 
 The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'. This froms the backend datastore for the URL Lookup API service.
 
+```console
+$ cd database/
+```
+
 The schema for the database is available in the file **mysql_database_schema.sql** and the data dump containing the categorization of 12500+ URLs is available in the file **url-lookup-datadump.sql**. 
 
 The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
@@ -161,10 +161,11 @@ We are now ready to deploy the API server into production.
 
 ## Deployment
 
-The supported command line arguments can be checked as follows:
+The supported command line arguments can be verified as follows:
 ```
-$ python3 URL-lookup-engine.py -h
-usage: URL-lookup-engine.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
+$ cd app/
+$ python3 url-lookup-service.py -h
+usage: url-lookup-service.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
 
 API lookup service to detect maliciousness of URLs
 
@@ -176,7 +177,7 @@ optional arguments:
 
 In order to deploy the service:
 ```console
-$ python3 URL-lookup-engine.py --debug 0 --email_alerts 1
+$ python3 url-lookup-service.py --debug 0 --email_alerts 1
 ```
 The service is now listening on the IP address and port specified in the .env configuration file. 
 
@@ -188,7 +189,7 @@ URL Lookup API service is an **authentication based service**. Hence, in order t
 A sample client side cURL request and response from the API server will be as follows:
 
 ```console
-curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://0.0.0.0:5000/urlinfo/1?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 Here, the URL `http://www.amazon.com` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server for this test.
 
@@ -214,7 +215,7 @@ The response payload to this request will be as follows, along with a 200 status
 ```
 Let us try another URL:
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=m.faceebok.com-listing-id272178211.list781039942.com%2Fprofile.html" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=m.faceebok.com-listing-id272178211.list781039942.com%2Fprofile.html" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The response payload is received with a 200 status code. The URL has been classified as **Adware**.
 ```shell
@@ -240,7 +241,7 @@ The response payload is received with a 200 status code. The URL has been classi
 Similarly, here is another URL lookup request:
 
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The response payload is received with a 200 status code. The URL has been classified as **Ransomware**.
 ```shell
@@ -264,7 +265,7 @@ The response payload is received with a 200 status code. The URL has been classi
 ```
 As a final example, we will lookup the following URL:
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 ```shell
@@ -287,8 +288,8 @@ The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 } 
 ```
 It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
-```
-curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
+```console
+curl -X GET "http://0.0.0.0:5000/urlinfo/1?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
 ```
 401 Unauthorized response is received as the token is unrecognized by the API server.
 ```shell
