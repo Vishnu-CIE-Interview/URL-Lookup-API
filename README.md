@@ -133,14 +133,14 @@ URL Lookup API service is an **authentication based service**. Hence, in order t
 
 A sample client side cURL request and response from the API server will be as follows:
 
-```shell
+```console
 $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 
 Here, the URL 'http://www.amazon.com' is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
 
 The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
-```python3
+```shell
 {
   "data": {
     "URL category": {
@@ -162,7 +162,7 @@ The response payload to this request will be as follows, along with a 200 status
 
 Similarly, here is another URL lookup request:
 
-```shell
+```console
 curl -X GET "http://localhost:5000/urlinfo?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The response payload is received with a 200 status code. The URL has been classified as **Ransomware**.
@@ -190,7 +190,7 @@ As a final example, we will lookup the following URL:
 curl -X GET "http://localhost:5000/urlinfo?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The lookup categorizes this URL as Spyware, and a 200 status code is returned.
-```console
+```shell
 {
   "data": {
     "URL category": {
@@ -211,7 +211,7 @@ The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 ```
 It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
 
-```console
+```shell
 {
   "data": "",
   "info": {
