@@ -21,7 +21,8 @@ The API provides URL lookup service that categorizes input URLs based on level o
 ## Features
 
 ### Distributed design 
-The service is architected keeping in mind the principle of separation of concerns. This is so that we are building the solution with future scalability in mind. The main API server interacts with entities distributed in the network, which consists of a database server, a cachining layer and an alerting mail forwarder. Since each processing layer is discrete, it ensures we can individually scale them in future, with no impact to existing service layout. 
+The service is architected keeping in mind the principle of separation of concerns. This is so that we are building the solution with future scalability in mind. The main API server interacts with entities distributed in the network, which consists of a database server, a cachining layer and an alerting mail forwarder. Since each processing layer is discrete, it ensures we can individually scale them in future, with no impact to existing service layout. Additionally, having a seperate database layer to store the URL categorization information ensures that the database can ingest periodic URL category updates, without impacing the API application server and its functionality.
+
 
 ### API Security:
 1. Since we service is provisioned to be offered as a cloud security functionality, protecting our APIs to unauthorized requests is paramount. We have to ensure that illegimitate or unauthorized API requests to the service are not reponded to. Since the service is only supporting GET requests to query URLs, the security is delivered by using **API Authentication Tokens**. 
@@ -123,7 +124,15 @@ $sudo memcached -p 12345
 
 ### Database server
 
-The MySQL database contains the URL categorization based on malware types. The schema for the database is available in the file mysql_database_schema.sql. The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
+The MySQL database contains the URL categorization based on malware types. 
+
+The data dump provided contains URL lookup malware categorization for 12500+ URLs publicly available. 
+
+The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'. This froms the backend datastore for the URL Lookup API service.
+
+The schema for the database is available in the file **mysql_database_schema.sql** and the data dump containing the categorization of 12500+ URLs is available in the file **url-lookup-datadump.sql**. 
+
+The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
 
 ```console
 $sudo apt-get install mysql-server
@@ -136,6 +145,10 @@ Create the database and tables necessary for the API service as follows by sourc
 
 ```console
 mysql> source mysql_database_schema.sql
+```
+Dump the URL categorization data for 12500+ URLs as follows: 
+```
+mysql> source url-lookup-datadump.sql
 ```
 
 ### SMTP Email Alerting Server
@@ -181,7 +194,7 @@ A sample client side cURL request and response from the API server will be as fo
 $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 
-Here, the URL 'http://www.amazon.com' is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
+Here, the URL `'http://www.amazon.com'` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
 
 The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
 ```shell
@@ -277,7 +290,7 @@ The URL Lookup API service has a specification model defined based on Swagger, w
 
 As per definition, the OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs. An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
 
-Once the service is deployed, navigate to http://<serverIP>:<serverPort>/apidocs to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
+Once the service is deployed, navigate to http://`<serverIP>:<serverPort>`/apidocs to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
 
 Once this specification page is visited, this is what is seen on the web browser page:
 
