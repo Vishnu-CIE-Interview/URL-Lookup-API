@@ -129,7 +129,7 @@ The service is now listening on the IP address and port specified in the .env co
 
 ## How to use the service?
 
-URL Lookup API service is an authentication based service. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an X-API-Key. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
+URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
 
 A sample client side cURL request and response from the API server will be as follows:
 
@@ -139,7 +139,7 @@ $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "acce
 
 Here, the URL 'http://www.amazon.com' is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
 
-The response payload to this request will be as follows:
+The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
 ```python3
 {
   "data": {
@@ -156,6 +156,73 @@ The response payload to this request will be as follows:
   "response_status": {
     "code": 200, 
     "message": "INFO: The request has succeeded."
+  }
+}
+```
+
+Similarly, here is another URL lookup request:
+
+```shell
+curl -X GET "http://localhost:5000/urlinfo?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+The response payload is received with a 200 status code. The URL has been classified as **Ransomware**.
+```shell
+{
+  "data": {
+    "URL category": {
+      "http://royalmail-uk-deliveries.com/billing.php": "Ransomware"
+    }
+  }, 
+  "info": {
+    "engine": {
+      "version": "1.0"
+    }, 
+    "timestamp": "Sat, 20 Mar 2021 17:50:20 GMT"
+  }, 
+  "response_status": {
+    "code": 200, 
+    "message": "INFO: The request has succeeded."
+  }
+}
+```
+As a final example, we will lookup the following URL:
+```console
+curl -X GET "http://localhost:5000/urlinfo?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+The lookup categorizes this URL as Spyware, and a 200 status code is returned.
+```console
+{
+  "data": {
+    "URL category": {
+      "www.o2billingfail.com/Login": "Spyware"
+    }
+  }, 
+  "info": {
+    "engine": {
+      "version": "1.0"
+    }, 
+    "timestamp": "Sat, 20 Mar 2021 17:57:54 GMT"
+  }, 
+  "response_status": {
+    "code": 200, 
+    "message": "INFO: The request has succeeded."
+  }
+} 
+```
+It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
+
+```console
+{
+  "data": "",
+  "info": {
+    "engine": {
+      "version": "1.0"
+    },
+    "timestamp": "Sat, 20 Mar 2021 18:02:01 GMT"
+  },
+  "response_status": {
+    "code": 401,
+    "message": "ERROR: Unauthorized. The provided API token is not a valid registered token."
   }
 }
 ```
@@ -186,19 +253,19 @@ Additional debuggging can be enabled by tuning the CLI flag on for enabling debu
 
 To turn on debug level logs while deploying the application, pass the following flag as 1. By default, debug level logging is disabled. 
 
-```console
-python3 URL-lookup-engine.py --debug 1 
+```shell
+$ python3 URL-lookup-engine.py --debug 1 
 ```
 Additionally, since this is a mission critical service as data path traffic will be waiting on the API service to function normally, any major errors should be flagged immediately and the administrator or on-call engineer notified. To enable this functionality, SMTP based email alert forwarding for major errors can be enabled as follows. By default, this feature stays turned off.
 
-```console
-python3 URL-lookup-engine.py --email_alerts 1
+```shell
+$ python3 URL-lookup-engine.py --email_alerts 1
 ```
 A sample email notification will be as follows:
 ```shell
 ---------- MESSAGE FOLLOWS ----------
 From: API-error-monitoring@URLService.com
-To: vischan2@cisco.com
+To: engineer@company-name.com
 Subject: ATTENTION : Critical Application Error - Action Needed!
 Date: Sat, 20 Mar 2021 17:30:13 -0700
 Content-Type: text/plain; charset="utf-8"
