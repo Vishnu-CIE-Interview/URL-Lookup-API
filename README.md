@@ -178,7 +178,51 @@ The service is now listening on the IP address and port specified in the .env co
 
 ## How to use the service?
 
-URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
+Request format:
+```
+curl -X GET "http://<apiserveraddress>/urlinfo/1?query=<queryURL>" -H "accept: application/json" -H "X-Api-Key: <auth-token>"
+```
+#### 1. query (resource query parameter) : The URL that the user provides for lookup.
+
+The "query" parameter will be used to provide the URL that the client wishes to lookup through the service by passing ```?query=<queryURL>```.
+
+
+#### 2. X-Api-Key (header parameter) : The pre-registered authentication token which is provided to the user, for authenticating all incoming API requests.
+
+URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. 
+
+The server security administrator can register authentication token and provide it to the client. Currently, we provide a CLI based utility to register a token on the backend. The security administrator is reponsible for registering the token. 
+
+For testing, we can initialize a token and register it with the server as follows. The registration service should be run on the API server. 
+
+```shell
+$ cd authentication/
+$ python3 secure_auth_token.py -h
+usage: secure_auth_token.py [-h] (--register REGISTER | --unregister UNREGISTER)
+
+Register or unregister an authentication token for the client.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --register REGISTER   register the provided authentication token (default: None)
+  --unregister UNREGISTER
+                        unregister a known authentication token from the recognized list of tokens in the database (default: None)
+```
+The authentication token that we would register now, as an example, is "user-token-555".
+
+```shell
+$ python3 secure_auth_token.py --register user-token-555
+Registering token: user-token-555
+Token is now successfully registered with the server. To authenticate REST API requests, provide the registered token as 'X-Api-key' in the HTTP header.
+```
+This registered token can now be provided to an user for all future communication with the REST API server.
+
+In case the token has to be unregistered in future, it can be done as follows:
+```shell
+$ python3 secure_auth_token.py --unregister user-token-555
+Ungistering token: user-token-555
+Token is now successfully unregistered. This token cannot be used for authenticating API requests with the server anymore.
+```
 
 A sample client side cURL request and response from the API server will be as follows:
 
