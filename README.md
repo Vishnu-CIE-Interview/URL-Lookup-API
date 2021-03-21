@@ -178,6 +178,38 @@ Click on 'Try it out' and enter values in the query and X-Api-Key input sections
 <img width="1669" alt="page3spec" src="https://user-images.githubusercontent.com/81005592/111889943-37defd00-89a2-11eb-926d-0cb4793e3b2d.png">
 <img width="1671" alt="page4spec" src="https://user-images.githubusercontent.com/81005592/111889945-39a8c080-89a2-11eb-83d9-0fff12aef1d8.png">
 
+## Troubleshooting Failures
+
+All logging from the application code will be written to URL-api-engine.log in the same directory from where the service is being executed. Detailed logs regarding any failures and time of event, along with the call stack can be isolated in this log file.
+
+Additional debuggging can be enabled by tuning the CLI flag on for enabling debug level logs. This is advised where a critical error needs to be isolated, where additional visibility into the functionality will be beneficial. 
+
+To turn on debug level logs while deploying the application, pass the following flag as 1. By default, debug level logging is disabled. 
+
+```console
+python3 URL-lookup-engine.py --debug 1 
+```
+Additionally, since this is a mission critical service as data path traffic will be waiting on the API service to function normally, any major errors should be flagged immediately and the administrator or on-call engineer notified. To enable this functionality, SMTP based email alert forwarding for major errors can be enabled as follows. By default, this feature stays turned off.
+
+```console
+python3 URL-lookup-engine.py --email_alerts 1
+```
+A sample email notification will be as follows:
+```shell
+---------- MESSAGE FOLLOWS ----------
+From: API-error-monitoring@URLService.com
+To: vischan2@cisco.com
+Subject: ATTENTION : Critical Application Error - Action Needed!
+Date: Sat, 20 Mar 2021 17:30:13 -0700
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-Peer: 127.0.0.1
+
+[2021-03-20 17:30:13,229] ERROR in URL-lookup-engine: Critical application error: Authentication service is not responding.
+------------ END MESSAGE ------------
+```
+
 
 ## Tests
 
