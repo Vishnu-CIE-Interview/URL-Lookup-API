@@ -1,12 +1,6 @@
 # URL-Lookup-API
-The API provides URL lookup service that categorizes input URLs based on level of maliciousness.
 <img width="1261" alt="API-service-diagram" src="https://user-images.githubusercontent.com/81005592/111884218-6a2a3380-897d-11eb-94cc-873a0d2f8468.png">
-
-## Project title
-
-
-## Motivation
-
+The API provides URL lookup service that categorizes input URLs based on level of maliciousness.
 
 ## Technology and frameworks used
 
@@ -107,12 +101,12 @@ Once this initial configuration is complete, the following servers need to be se
 The Memcached server should be accessible and routable to the network where the API production server is deployed. If the server chosen is a Debian/Ubuntu machine, the Memcached service can be installed on it using the command:
 
 ```console
-$sudo apt-get install memcached
+$ sudo apt-get install memcached
 ```
 Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file as described earlier.
 
 ```console
-$sudo memcached -p 12345
+$ sudo memcached -p 12345
 ```
 
 ### Database server
@@ -132,11 +126,11 @@ The schema for the database is available in the file **mysql_database_schema.sql
 The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
 
 ```console
-$sudo apt-get install mysql-server
-$sudo mysql_secure_installation
-$sudo systemctl enable mysql
-$sudo mysql -u root -p
-$mysql>
+$ sudo apt-get install mysql-server
+$ sudo mysql_secure_installation
+$ sudo systemctl enable mysql
+$ sudo mysql -u root -p
+$ mysql>
 ```
 Create the database and tables necessary for the API service as follows by sourcing the schema file as follows:
 
@@ -153,7 +147,7 @@ mysql> source url-lookup-datadump.sql
 The SMTP server is used as a forwarding point to send out production critical errors and alerts from the API service, which demand immediate administrator and/or developer attention. Ensure that this server is reachable on the network with the main API server. If a Debian/Ubuntu machine is used for this purpose, a console level notification system can be initialized using Python as follows. Once this is set up, the API service will reach out to this mailing server with any urgent and critical failures, with a log snippet of the stacktrace and crash details.
 
 ```console
-$sudo python -m smtpd -n -c DebuggingServer 127.0.0.1:25 
+$ sudo python -m smtpd -n -c DebuggingServer 127.0.0.1:25 
 ```
 
 We are now ready to deploy the API server into production.  
@@ -335,12 +329,12 @@ Additional debuggging can be enabled by tuning the CLI flag on for enabling debu
 To turn on debug level logs while deploying the application, pass the following flag as 1. By default, debug level logging is disabled. 
 
 ```shell
-$ python3 URL-lookup-engine.py --debug 1 
+$ python3 url-lookup-service.py --debug 1 
 ```
 Additionally, since this is a mission critical service as data path traffic will be waiting on the API service to function normally, any major errors should be flagged immediately and the administrator or on-call engineer notified. To enable this functionality, SMTP based email alert forwarding for major errors can be enabled as follows. By default, this feature stays turned off.
 
 ```shell
-$ python3 URL-lookup-engine.py --email_alerts 1
+$ python3 url-lookup-service.py --email_alerts 1
 ```
 A sample email notification will be as follows:
 ```shell
@@ -361,8 +355,24 @@ X-Peer: 127.0.0.1
 
 ## Tests
 
+The unit test cases to test the API functionality is available in the tests folder. Refer to the README file in the tests directory. 
 
 ## Contribute
 
+For adding contributions and/or bug fixes, add changes to the staging branch, then raise a pull request for review to be merged in to the main branch.
 
 ## License
+
+MIT License
+
+Copyright (c) 2021 URL Lookup API Service
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.

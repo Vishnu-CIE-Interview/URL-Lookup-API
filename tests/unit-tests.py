@@ -31,7 +31,7 @@ class TestCases():
     def test_200_response(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 1: Checking URL Lookup for Benign category")
         test_url = "translate.googleusercontent.com"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -40,7 +40,7 @@ class TestCases():
     def test_benign_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 1: Checking URL Lookup for Benign category")
         test_url = "reddit.com"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -49,7 +49,7 @@ class TestCases():
     def test_spyware_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 2: Checking URL Lookup for Spyware category")
         test_url = "manaplas.com/bankofamerica.comr/home.php"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -58,7 +58,7 @@ class TestCases():
     def test_malware_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 3: Checking URL Lookup for Malware category")
         test_url = "recovery-notifications-issue-identity-pages.gq"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -67,7 +67,7 @@ class TestCases():
     def test_adware_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 4: Checking URL Lookup for Adware category")
         test_url = "verificationpayment.com/Login.php"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -76,7 +76,7 @@ class TestCases():
     def test_phishing_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 5: Checking URL Lookup for Phishing category")
         test_url = "http://mail.securelloyd-help-team.com/lloyds/Login.php"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -85,7 +85,7 @@ class TestCases():
     def test_ransomware_category(self, logger_handler, headers_dict, server_access):
         logger_handler.info("TEST 6: Checking URL Lookup for Ransomware category")
         test_url = "royalmail-uk-deliveries.com/billing.php"
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
@@ -96,7 +96,7 @@ class TestCases():
         test_url = "https://www.amazon.com"
         test_token = "NO-TOKEN"
         headers_dict = {"X-Api-Key": test_token}
-        response = requests.get("http://{}/urlinfo?query={}"
+        response = requests.get("http://{}/urlinfo/1?query={}"
                                 .format(server_access, test_url), headers=headers_dict)
         dict_response = (json.loads(response.text))
         logger_handler.info(dict_response)
