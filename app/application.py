@@ -13,7 +13,7 @@ def app_function():
     -response generation
     :return: the defined application object
     """
-    load_dotenv('.env')
+    load_dotenv('../.env')
     app = Flask(__name__)
     mysql = MySQL(app)
 
