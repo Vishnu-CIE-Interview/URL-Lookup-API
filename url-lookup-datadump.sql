@@ -1,6 +1,7 @@
 -- MySQL data server version 8.0.23
--- The data dump contains URL lookup malware categorization for huge number of -- URLs. This froms the backend datastore for the URL Lookup API service.
-
+-- The data dump contains URL lookup malware categorization for 12500+ URLs publicly available. 
+-- The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'.
+-- This froms the backend datastore for the URL Lookup API service.
 
 -- Dumping data for table `local_api_hash`
 -- Inserting test cryptographic hash to enable the user authentication token: 
