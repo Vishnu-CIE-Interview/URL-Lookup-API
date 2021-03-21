@@ -187,7 +187,7 @@ URL Lookup API service is an **authentication based service**. Hence, in order t
 
 A sample client side cURL request and response from the API server will be as follows:
 
-```console
+```shell
 $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 
