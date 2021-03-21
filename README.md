@@ -63,7 +63,7 @@ The main server listening to API requests is where the Flask application running
 
 The first step is to install the dependencies:
 
-```console
+```
 $ python3 -m venv env
 $ source env/bin/activate
 $ sudo pip3 install -r requirements.txt
@@ -100,12 +100,12 @@ Once this initial configuration is complete, the following servers need to be se
 
 The Memcached server should be accessible and routable to the network where the API production server is deployed. If the server chosen is a Debian/Ubuntu machine, the Memcached service can be installed on it using the command:
 
-```console
+```
 $ sudo apt-get install memcached
 ```
 Once installed, the caching end point can be initialized as follows by providing the port number. Once initialized, the caching layer will be connected to using the server’s IP and port address. This combination should be provided in the .env file as described earlier.
 
-```console
+```
 $ sudo memcached -p 12345
 ```
 
@@ -117,7 +117,7 @@ The data dump provided contains URL lookup malware categorization for 12500+ URL
 
 The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'. This froms the backend datastore for the URL Lookup API service.
 
-```console
+```
 $ cd database/
 ```
 
@@ -125,7 +125,7 @@ The schema for the database is available in the file **mysql_database_schema.sql
 
 The database server should be accessible and routable to the main API server. MySQL service should be installed on the Linux machine. If the server is Debian/Ubuntu based, MySQL service can be installed as follows:
 
-```console
+```
 $ sudo apt-get install mysql-server
 $ sudo mysql_secure_installation
 $ sudo systemctl enable mysql
@@ -134,11 +134,11 @@ $ mysql>
 ```
 Create the database and tables necessary for the API service as follows by sourcing the schema file as follows:
 
-```console
+```
 mysql> source mysql_database_schema.sql
 ```
 Dump the URL categorization data for 12500+ URLs as follows: 
-```console
+```
 mysql> source url-lookup-datadump.sql
 ```
 
@@ -146,7 +146,7 @@ mysql> source url-lookup-datadump.sql
 
 The SMTP server is used as a forwarding point to send out production critical errors and alerts from the API service, which demand immediate administrator and/or developer attention. Ensure that this server is reachable on the network with the main API server. If a Debian/Ubuntu machine is used for this purpose, a console level notification system can be initialized using Python as follows. Once this is set up, the API service will reach out to this mailing server with any urgent and critical failures, with a log snippet of the stacktrace and crash details.
 
-```console
+```
 $ sudo python -m smtpd -n -c DebuggingServer 127.0.0.1:25 
 ```
 
@@ -170,7 +170,7 @@ optional arguments:
 ```
 
 In order to deploy the service:
-```console
+```
 $ python3 url-lookup-service.py --debug 0 --email_alerts 1
 ```
 The service is now listening on the IP address and port specified in the .env configuration file. 
@@ -178,7 +178,51 @@ The service is now listening on the IP address and port specified in the .env co
 
 ## How to use the service?
 
-URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
+### Request format:
+```console
+curl -X GET "http://<apiserveraddress>/urlinfo/1?query=<queryURL>" -H "accept: application/json" -H "X-Api-Key: <auth-token>"
+```
+#### 1. query (resource query parameter) : The URL that the user provides for lookup.
+
+The "query" parameter will be used to provide the URL that the client wishes to lookup through the service by passing ```?query=<queryURL>```.
+
+
+#### 2. X-Api-Key (header parameter) : The pre-registered authentication token which is provided to the user, for authenticating all incoming API requests.
+
+URL Lookup API service is an **authentication based service**. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an **X-API-Key**. 
+
+The server security administrator can register authentication token and provide it to the client. Currently, we provide a CLI based utility to register a token on the backend. The security administrator is reponsible for registering the token. 
+
+For testing, we can initialize a token and register it with the server as follows. The registration service should be run on the API server. 
+
+```
+$ cd authentication/
+$ python3 secure_auth_token.py -h
+usage: secure_auth_token.py [-h] (--register TOKEN | --unregister TOKEN)
+
+Register or unregister an authentication token for the client.
+
+arguments:
+  -h, --help            show this help message and exit
+  --register TOKEN   register the provided authentication token (default: None)
+  --unregister TOKEN
+                        unregister a known authentication token from the recognized list of tokens in the database (default: None)
+```
+The authentication token that we would register now, as an example, is "user-token-555".
+
+```
+$ python3 secure_auth_token.py --register user-token-555
+Registering token: user-token-555
+Token is now successfully registered with the server. To authenticate REST API requests, provide the registered token as 'X-Api-key' in the HTTP header.
+```
+This registered token can now be provided to an user for all future communication with the REST API server.
+
+In case the token has to be unregistered in future, it can be done as follows:
+```
+$ python3 secure_auth_token.py --unregister user-token-555
+Ungistering token: user-token-555
+Token is now successfully unregistered. This token cannot be used for authenticating API requests with the server anymore.
+```
 
 A sample client side cURL request and response from the API server will be as follows:
 
@@ -328,12 +372,12 @@ Additional debuggging can be enabled by tuning the CLI flag on for enabling debu
 
 To turn on debug level logs while deploying the application, pass the following flag as 1. By default, debug level logging is disabled. 
 
-```shell
+```
 $ python3 url-lookup-service.py --debug 1 
 ```
 Additionally, since this is a mission critical service as data path traffic will be waiting on the API service to function normally, any major errors should be flagged immediately and the administrator or on-call engineer notified. To enable this functionality, SMTP based email alert forwarding for major errors can be enabled as follows. By default, this feature stays turned off.
 
-```shell
+```
 $ python3 url-lookup-service.py --email_alerts 1
 ```
 A sample email notification will be as follows:
