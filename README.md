@@ -20,17 +20,17 @@ The API provides URL lookup service that categorizes input URLs based on level o
 
 ## Features
 
-**Distributed design** 
+### Distributed design ###
 --
 The service is architected keeping in mind the principle of separation of concerns. This is so that we are building the solution with future scalability in mind. The main API server interacts with entities distributed in the network, which consists of a database server, a cachining layer and an alerting mail forwarder. Since each processing layer is discrete, it ensures we can individually scale them in future, with no impact to existing service layout. 
 
-**API Security:** 
+### API Security:###
 --
 Since we service is provisioned to be offered as a cloud security functionality, protecting our APIs to unauthorized requests is paramount. We have to ensure that illegimitate or unauthorized API requests to the service are not reponded to. Since the service is only supporting GET requests to query URLs, the security is delivered by using API Authentication Tokens. The authentication token is a string datatype that every client provides in the header of the HTTP request. This token is registered previously with the server, which lets the server authenticate every request by checking the HTTP header field called **X-API-Key**. 
 
 Once the API authentication token is retrieved from the HTTP header, a cryptographic hash of that token is computed using HMAC algorithm in combination with a local server secret key. The computed hash is then stored in the database. On every subsequent lookup, the server validates if the X-API-Key in the HTTP header of the request can be verified by comparing it's cryptographic hash with the value in the database. The local server secret key is critical in this process, because its existence ensures that even if the database is compromised, the overall system cannot be compromised as it depends on the local server secret key to re-compute the hash.  
 
-**Memcached Caching Layer:**
+### Memcached Caching Layer:###
 --
 Memcached is an open source, high-performance, distributed memory object caching system, which is intended for speeding up dynamic web applications by alleviating database load. The API's core functionality is heavily dependent on fast and efficient URL query categorization, as the requesting client is waiting on the response to process data-path traffic. In that regard, any improvement in query response time will scale up to tangible improvements in API response time. 
 
@@ -46,7 +46,7 @@ The caching layer works as follows:
 
 5. The Memcache Caching Layer can be scaled up further to be a system of distributed machines, thereby improving the amount of caching information it can store. The existing design ensure that such a future scaling can be easily incorporated into the existing system.
 
-**Maintainability and Serviceability:** 
+### Maintainability and Serviceability:###
 --
 Since this is a mission critical service and data-path network traffic depends on the service to be operating and functional 24x7, time to fault isolation and resolution when things break is of prime importance. There are two ways this is accomplished:
 
@@ -58,7 +58,7 @@ For any critical errors that can put the application in a precarious state, an e
 
 Once a critical error has put the system in a state unable to render its services, the next step would be reactive troubleshooting. In order to assist the engineer isolating such errors, the service provides a debug mode, wherein additional logging of the service delivery state can be output to the console and log files, by passing a CLI flag to enable debug level logging. The debug level logs give additional visibility into the state of the system, quickly isolationg specific area in the code which is causing the system to not perform optimally. 
 
-**Versioning:** 
+### Versioning:###
 --
 Compatability for versioning ensures that newer version changes can be easily incorporated into existing design, without breaking older APIs. This will ensure backward compatibility for our clients and not take them by surprise when we publish new changes into the future. Older clients can continue to use the older API without breaking their usage workflows, while new clients can choose to test and incorporate the newer version.
 
