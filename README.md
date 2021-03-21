@@ -198,14 +198,14 @@ For testing, we can initialize a token and register it with the server as follow
 ```shell
 $ cd authentication/
 $ python3 secure_auth_token.py -h
-usage: secure_auth_token.py [-h] (--register REGISTER | --unregister UNREGISTER)
+usage: secure_auth_token.py [-h] (--register TOKEN | --unregister TOKEN)
 
 Register or unregister an authentication token for the client.
 
-optional arguments:
+arguments:
   -h, --help            show this help message and exit
-  --register REGISTER   register the provided authentication token (default: None)
-  --unregister UNREGISTER
+  --register TOKEN   register the provided authentication token (default: None)
+  --unregister TOKEN
                         unregister a known authentication token from the recognized list of tokens in the database (default: None)
 ```
 The authentication token that we would register now, as an example, is "user-token-555".
