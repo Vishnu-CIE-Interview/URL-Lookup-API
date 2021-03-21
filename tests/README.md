@@ -9,7 +9,6 @@ The output on the console for a successful test run will be as follows:
 ```shell
 ================================================================================================================== test session starts ==================================================================================================================
 platform darwin -- Python 3.9.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
-rootdir: /Users/vischan2/DS
 collected 9 items                                                                                                                                                                                                                                       
 
 API-unit-tests.py::TestCases::test_200_response 
