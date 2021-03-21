@@ -178,8 +178,8 @@ The service is now listening on the IP address and port specified in the .env co
 
 ## How to use the service?
 
-Request format:
-```
+### Request format:
+```console
 curl -X GET "http://<apiserveraddress>/urlinfo/1?query=<queryURL>" -H "accept: application/json" -H "X-Api-Key: <auth-token>"
 ```
 #### 1. query (resource query parameter) : The URL that the user provides for lookup.
