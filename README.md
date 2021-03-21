@@ -188,7 +188,7 @@ URL Lookup API service is an **authentication based service**. Hence, in order t
 A sample client side cURL request and response from the API server will be as follows:
 
 ```console
-curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://0.0.0.0:5000/urlinfo/1?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 Here, the URL `http://www.amazon.com` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server for this test.
 
@@ -214,7 +214,7 @@ The response payload to this request will be as follows, along with a 200 status
 ```
 Let us try another URL:
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=m.faceebok.com-listing-id272178211.list781039942.com%2Fprofile.html" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=m.faceebok.com-listing-id272178211.list781039942.com%2Fprofile.html" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The response payload is received with a 200 status code. The URL has been classified as **Adware**.
 ```shell
@@ -240,7 +240,7 @@ The response payload is received with a 200 status code. The URL has been classi
 Similarly, here is another URL lookup request:
 
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=http://royalmail-uk-deliveries.com%2Fbilling.php" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The response payload is received with a 200 status code. The URL has been classified as **Ransomware**.
 ```shell
@@ -264,7 +264,7 @@ The response payload is received with a 200 status code. The URL has been classi
 ```
 As a final example, we will lookup the following URL:
 ```console
-curl -X GET "http://localhost:5000/urlinfo?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://localhost:5000/urlinfo/1?query=www.o2billingfail.com/Login" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 ```shell
@@ -288,7 +288,7 @@ The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 ```
 It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
 ```
-curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
+curl -X GET "http://0.0.0.0:5000/urlinfo/1?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
 ```
 401 Unauthorized response is received as the token is unrecognized by the API server.
 ```shell
