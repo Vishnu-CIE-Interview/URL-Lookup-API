@@ -21,12 +21,25 @@ The API provides URL lookup service that categorizes input URLs based on level o
 ## Features
 
 
-## How to use?
-
-
 ## Installation
 
-The .env file contains the user configurable variables that the main API service will auto-configure for providing access to caching, database and email-alerting servers. 
+The main server listening to API requests is where the Flask application running on Python 3.9.2 is deployed. This can be a Debian/Ubuntu, CentOS or any Linux based system. 
+
+The application directory consists of three files:
+
+1. URL-lookup-engine.py 
+2. requirements.txt
+3. .env 
+
+The first step is to install the dependencies:
+
+```console
+$sudo pip3 install -r requirements.txt
+```
+
+After the dependencies are installed, we need to configure the environmental variables from .env file. 
+
+The .env file contains the user configurable variables that the main API service will auto-configure for providing access to caching, database service and email-alerting. 
 
 Before deploying the server into production, change the following environmental variables listed in this file.
 
@@ -49,7 +62,7 @@ SNMP_FROM_ADDRESS=API-error-monitoring@URLService.com
 SNMP_TO_ADDRESS=administrator@company.com
 ```
 
-The following servers need to be set up before the main service can be initiated. 
+Once this initial configuration is complete, the following servers need to be set up before the main service can be initiated. 
 
 ### Memcached Server
 
@@ -87,6 +100,65 @@ The SMTP server is used as a forwarding point to send out production critical er
 
 ```console
 $sudo python -m smtpd -n -c DebuggingServer 127.0.0.1:25 
+```
+
+We are now ready to deploy the API server into production.  
+
+
+## Deployment
+
+The supported command line arguments can be checked as follows:
+```
+$ python3 URL-lookup-engine.py -h
+usage: URL-lookup-engine.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
+
+API lookup service to detect maliciousness of URLs
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug {0,1}         Flag to turn on debug level logging when needed. Accepted values are 1 or 0. (default: 0)
+  --email_alerts {0,1}  Flag to turn on email alerts to notify critical server errors that need immediate action. Accepted values are 1 or 0. (default: 0)
+
+```
+
+In order to deploy the service:
+```console
+$ python3 URL-lookup-engine.py --debug 0 --email_alerts 1
+```
+The service is now listening on the IP address and port specified in the .env configuration file. 
+
+
+## How to use the service?
+
+URL Lookup API service is an authentication based service. Hence, in order to establish a REST API communication with the server, the user needs to provide an user-token which is registered with the server. This token will be passed in the HTTP Header as an X-API-Key. The "query" parameter will be used to provide the URL that the client wishes to lookup through the service. 
+
+A sample client side cURL request and response from the API server will be as follows:
+
+```shell
+$ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+```
+
+Here, the URL 'http://www.amazon.com' is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
+
+The response payload to this request will be as follows:
+```python3
+{
+  "data": {
+    "URL category": {
+      "http://www.amazon.com": "Benign"
+    }
+  }, 
+  "info": {
+    "engine": {
+      "version": "1.0"
+    }, 
+    "timestamp": "Sat, 20 Mar 2021 17:11:30 GMT"
+  }, 
+  "response_status": {
+    "code": 200, 
+    "message": "INFO: The request has succeeded."
+  }
+}
 ```
 
 ## API Reference
