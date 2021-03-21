@@ -53,6 +53,7 @@ def app_function():
 
     @app.errorhandler(Exception)
     def server_error(server_internal_error):
+        app.logger.error("The application has encountered a critical server internal error")
         app.logger.exception(server_internal_error)
         return response_builder("", 500,
                                 "ERROR: The request could not be processed at this moment due to an Internal Server Error."), 500
@@ -149,8 +150,7 @@ def app_function():
             return response_builder("", status_code,
                                     "ERROR: Unauthorized. The provided API token is not a valid registered token."), status_code
 
-
-
+    # future support for version 2 of the API
     @app.route('/urlinfo/2')
     def urlinfo_v2():
         '''
@@ -158,7 +158,7 @@ def app_function():
         '''
         return redirect(url_for('unsupported_resource'))
 
-
+    # catch all unsupported routes
     @app.route('/<path:path>')
     @app.route('/', defaults={'path': None})
     def unsupported_resource(path):
