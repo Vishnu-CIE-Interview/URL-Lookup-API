@@ -287,7 +287,7 @@ The lookup categorizes this URL as Spyware, and a 200 status code is returned.
 } 
 ```
 It is important to know that, in case the user does not provide an API authentication token, or if a wrong token is provided, following response will be send out with 401 Unauthorized status code.
-```
+```console
 curl -X GET "http://0.0.0.0:5000/urlinfo/1?query=http://www.forbes.com" -H "accept: application/json" -H "X-Api-Key: UNRECOGNIZED-TOKEN"
 ```
 401 Unauthorized response is received as the token is unrecognized by the API server.
