@@ -10,7 +10,7 @@ The API provides URL lookup service that categorizes input URLs based on level o
 
 ## Technology and frameworks used
 
-###Built with:###
+### Built with:
 1. Flask API Framework: parallelprojects.com/p/flask
 2. Memcached Distributed Caching System: memcached.org
 3. MySQL Database Service: dev.mysql.com
@@ -188,9 +188,8 @@ URL Lookup API service is an **authentication based service**. Hence, in order t
 A sample client side cURL request and response from the API server will be as follows:
 
 ```console
-$ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
+curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
-
 Here, the URL `http://www.amazon.com` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server for this test.
 
 The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
