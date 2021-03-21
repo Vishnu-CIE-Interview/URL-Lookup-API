@@ -31,7 +31,7 @@ def app_function():
             },
             "version": "1.0"
         },
-        "basePath": "/urlinfo/1?query=<url>",
+        "basePath": "/urlinfo?query=<url>",
         "schemes": [
             "http"
         ]
@@ -40,7 +40,7 @@ def app_function():
     swagger = Swagger(app, template=template)
 
     app.logger.setLevel(logging.INFO)
-    logging.basicConfig(filename='URL-api-engine.log', level=logging.DEBUG,
+    logging.basicConfig(filename='url-api-service.log', level=logging.DEBUG,
                         format=' %(asctime)s %(levelname)s %(name)s %(threadName)s: %(message)s')
 
     cli_flags = initialize_command_line_args()
@@ -53,6 +53,7 @@ def app_function():
 
     @app.errorhandler(Exception)
     def server_error(server_internal_error):
+        app.logger.error("The application has encountered a critical server internal error")
         app.logger.exception(server_internal_error)
         return response_builder("", 500,
                                 "ERROR: The request could not be processed at this moment due to an Internal Server Error."), 500
@@ -97,16 +98,22 @@ def app_function():
         """
 
         headers = request.headers
+        app.logger.debug("retrieving the authentication token from the HTTP header")
         auth_token = headers.get("X-Api-Key")  # expect an auth token that is registered and assigned to user
         pre_canonicalized_url = request.args.get('query')  # fetch url passed as an API query
+
+        app.logger.debug("canonicalizing the URLs to bring it into a format compatible with values in datastore")
         url = canonicalize_urls(pre_canonicalized_url)
         user_sha_signature = create_sha_signature(auth_token)
         if verify_sha_signature_in_datastore(user_sha_signature):
-            app.logger.error("User provided API token successfully authenticated, valid response will be send")
+            app.logger.debug("User provided API token successfully authenticated, valid response will be send")
 
             # Attempt to get from cache first, only then go to DB
 
+            app.logger.debug("initializing memcached client.")
             memcached_client = initialize_memcached_caching()
+
+            app.logger.debug("checking cache to fetch URL categorization, to know if values exists in the cache")
             cached_result = memcached_client.get(url)
 
             if cached_result:
@@ -119,27 +126,31 @@ def app_function():
                 query_fetch = db_cursor.fetchall()
                 if query_fetch:
                     url_category = query_fetch[0][0]
+
+                    app.logger.debug("The new values fetched from the database is being pushed in to the cache "
+                                     "with a TTL of 600 seconds")
                     memcached_client.set(url, url_category, expire=600)
                 else:
                     url_category = ""  # uncategorized URL in the local datastore
 
-            if len(url_category):  # categorization exists
+            if len(url_category):
+                app.logger.debug("categorization exists, appropriate response is being send out")
                 status_code = 200
                 return response_builder({"URL category": {pre_canonicalized_url: url_category}}, status_code,
                                         "INFO: The request has succeeded."), status_code
-            else:  # categorization does not exist
+            else:
+                app.logger.debug("categorization does not exist in the cache and in the database")
                 status_code = 200
                 return response_builder({"URL category": {pre_canonicalized_url: 'Uncategorized'}}, status_code,
                                         "INFO: The request has succeeded."), status_code
 
         else:
-            app.logger.info("User provided API token could not be authenticated with the stored hash on datastore")
+            app.logger.error("User provided API token could not be authenticated with the stored hash on datastore")
             status_code = 401
             return response_builder("", status_code,
                                     "ERROR: Unauthorized. The provided API token is not a valid registered token."), status_code
 
-
-
+    # future support for version 2 of the API
     @app.route('/urlinfo/2')
     def urlinfo_v2():
         '''
@@ -147,7 +158,7 @@ def app_function():
         '''
         return redirect(url_for('unsupported_resource'))
 
-
+    # catch all unsupported routes
     @app.route('/<path:path>')
     @app.route('/', defaults={'path': None})
     def unsupported_resource(path):
