@@ -147,7 +147,7 @@ Create the database and tables necessary for the API service as follows by sourc
 mysql> source mysql_database_schema.sql
 ```
 Dump the URL categorization data for 12500+ URLs as follows: 
-```
+```console
 mysql> source url-lookup-datadump.sql
 ```
 
@@ -194,7 +194,7 @@ A sample client side cURL request and response from the API server will be as fo
 $ curl -X GET "http://0.0.0.0:5000/urlinfo?query=http://www.amazon.com" -H "accept: application/json" -H "X-Api-Key: user-token-555"
 ```
 
-Here, the URL `'http://www.amazon.com'` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server.
+Here, the URL `http://www.amazon.com` is provided as a query parameter for lookup, and the token used for authentication is 'user-token-555', which is pre-registered with the server for this test.
 
 The response payload to this request will be as follows, along with a 200 status code. The URL is classified as **Benign**.
 ```shell
@@ -290,14 +290,14 @@ The URL Lookup API service has a specification model defined based on Swagger, w
 
 As per definition, the OpenAPI Specification (OAS) defines a standard, language-agnostic interface to RESTful APIs. An OpenAPI definition can then be used by documentation generation tools to display the API, code generation tools to generate servers and clients in various programming languages, testing tools, and many other use cases.
 
-Once the service is deployed, navigate to http://`<serverIP>:<serverPort>`/apidocs to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
+Once the service is deployed, navigate to `http://<serverIP>:<serverPort>/apidocs` to see and interact with the APIs and get familiar with the request and response models. This can also be used for visual testing and getting comfortable with using the APIs.
 
 Once this specification page is visited, this is what is seen on the web browser page:
 
 <img width="1672" alt="page1spec" src="https://user-images.githubusercontent.com/81005592/111889848-7f18be00-89a1-11eb-94ed-4e8fe25b7d8f.png">
 <img width="1683" alt="page2spec" src="https://user-images.githubusercontent.com/81005592/111889850-82ac4500-89a1-11eb-9564-2a7ebb7b21f2.png">
 
-Click on 'Try it out' and enter values in the query and X-Api-Key input sections, and click 'Execute'. The request and response content will be displayed as follows:
+Click on ```Try it out``` and enter values in the query and X-Api-Key input sections, and click ```Execute```. The request and response content will be displayed as follows:
 
 <img width="1669" alt="page3spec" src="https://user-images.githubusercontent.com/81005592/111889943-37defd00-89a2-11eb-926d-0cb4793e3b2d.png">
 <img width="1671" alt="page4spec" src="https://user-images.githubusercontent.com/81005592/111889945-39a8c080-89a2-11eb-83d9-0fff12aef1d8.png">
