@@ -20,10 +20,6 @@ The API provides URL lookup service that categorizes input URLs based on level o
 
 ## Features
 
-1. I’ll also think about API security, and how we can have the service setup with a minimally viable authentication methodology. As this will eventually be offered as a cloud security feature functionality, protecting our API to unauthorized requests might be a good approach.
-2. The service is architected keeping in mind the principle of separation of concerns. This is so that we are building the solution with future scalability in mind.
-3. Ensure maintainability is a priority, since this is a mission critical service and data-path network traffic depends on the service to be operating and functional 24x7. Hence, time to fault isolation and resolution when things break should be critical.
-4. Think about versioning, how it can be ensured that newer version changes can be easily incorporated into existing design, without breaking older APIs. This will ensure backward compatibility for our clients and not take them by surprise when we publish new changes.
 
 
 ## Installation
