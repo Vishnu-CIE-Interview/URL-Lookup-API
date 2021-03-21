@@ -69,8 +69,8 @@ def verify_sha_signature_in_datastore(computed_hash):
     :param computed_hash: this value is the computed hash using the HMAC algorithm
     :return: boolean decision whether the hash can be used to allow authentication OR denied
     """
-    connection_object = pymysql.connect(host='localhost', user=str(os.getenv('MYSQL_USER')),
-                                        password=str(os.getenv('MYSQL_PASSWORD')), db='urlengine', charset="utf8mb4",
+    connection_object = pymysql.connect(host=os.getenv('MYSQL_HOST'), user=str(os.getenv('MYSQL_USER')),
+                                        password=str(os.getenv('MYSQL_PASSWORD')), db=os.getenv('MYSQL_DB'), charset="utf8mb4",
                                         cursorclass=pymysql.cursors.DictCursor)
 
     cursor_object = connection_object.cursor()
