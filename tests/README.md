@@ -1,12 +1,12 @@
 To run the test cases, execute:
 
-```console
+```shell
 $ pytest unit-tests.py --log-cli-level=DEBUG 
 ```
 
 The output on the console for a successful test run will be as follows:
 
-```console
+```shell
 ================================================================================================================== test session starts ==================================================================================================================
 platform darwin -- Python 3.9.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
 rootdir: /Users/vischan2/DS
@@ -73,7 +73,8 @@ API-unit-tests.py::TestCases::test_404_status
 INFO     API-unit-tests:API-unit-tests.py:106 TEST 6: Checking if unsupported resource requests are returned with 404
 DEBUG    urllib3.connectionpool:connectionpool.py:227 Starting new HTTP connection (1): 0.0.0.0:5000
 DEBUG    urllib3.connectionpool:connectionpool.py:452 http://0.0.0.0:5000 "GET /wrong-resource?query=https://www.forbes.com HTTP/1.1" 404 446
-INFO     API-unit-tests:API-unit-tests.py:111 {'data': '', 'info': {'engine': {'version': '1.0'}, 'timestamp': 'Sun, 21 Mar 2021 04:46:45 GMT'}, 'response_status': {'code': 404, 'message': 'ERROR: The server does not support the functionality to fulfill this request. This could be because the requested URL was not found on the server or a valid URL was not provided. If you entered the URL manually, please re-check the URL and try again.'}}
+INFO     API-unit-tests:API-unit-tests.py:111 {'data': '', 'info': {'engine': {'version': '1.0'}, 'timestamp': 'Sun, 21 Mar 2021 04:46:45 GMT'}, 'response_status': {'code': 404, 'message': 'ERROR: The server does not support the functionality to fulfill this request. 
+This could be because the requested URL was not found on the server or a valid URL was not provided. If you entered the URL manually, please re-check the URL and try again.'}}
 PASSED                                                                                                                                                                                                                                            [100%]
 
 =================================================================================================================== 9 passed in 0.51s ===================================================================================================================
