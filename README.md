@@ -396,7 +396,7 @@ X-Peer: 127.0.0.1
 [2021-03-20 17:30:13,229] ERROR in URL-lookup-engine: Critical application error: Authentication service is not responding.
 ------------ END MESSAGE ------------
 ```
-Additionally, Memcached caching logs are also streamed to the log file. When a request is made, the following caching related logs will be printed on the mail log file immediately following the API request log:
+Additionally, Memcached caching logs are also streamed to the log file. When a request is made, the following caching related logs will be printed on the main log file (url-api-service.log) immediately following the API request log:
 ```
 url-api-service.log:
 [2021-03-21 17:37:22,939] DEBUG in application: initializing memcached client.
@@ -409,6 +409,11 @@ When a cached value is not available and a database query needs to be made, foll
 On the next API request, these values will be stored in the cache, and following will be printed on the logs on subsequent URL lookups for the same URL:
 ```
 2021-03-21 17:37:22,940 INFO application Thread-8: cached values found in memcached
+```
+
+In case of failed authentication attempts to the server by providing unregistered API tokens in the HTTP header, following will be logged to the file:
+```
+2021-03-21 17:36:13,225 ERROR application Thread-9: User provided API token could not be authenticated with the stored hash on datastore
 ```
 Please check the output of url-api-service.log for isolating any other debugs and errors.
 
