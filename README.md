@@ -429,14 +429,14 @@ The unit test cases to test the basic API functionality is available in the test
 
 To run the test cases, execute:
 
-```shell
+```
 $ cd tests/
 $ pytest unit-tests.py --log-cli-level=DEBUG 
 ```
 
 The output on the console for a successful test run will be as follows:
 
-```shell
+```
 ================================================================================================================== test session starts ==
 platform darwin -- Python 3.9.2, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
 collected 9 items                                                                                                                                                 
