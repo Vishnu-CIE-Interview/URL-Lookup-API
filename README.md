@@ -81,6 +81,8 @@ The server key, credentials or IP addresses should NOT be exposed outside of the
 
 Contents of .env file that needs to be configured by the user:
 ```shell
+API_SERVER_IP=0.0.0.0
+API_SERVER_PORT=5000
 API_KEY=serverspecial
 MYSQL_HOST=127.0.0.1
 MYSQL_DB=urlengine
@@ -157,7 +159,6 @@ We are now ready to deploy the API server into production.
 
 The supported command line arguments can be verified as follows:
 ```
-$ cd app/
 $ python3 url-lookup-service.py -h
 usage: url-lookup-service.py [-h] [--debug {0,1}] [--email_alerts {0,1}]
 
@@ -366,7 +367,7 @@ Click on ```Try it out``` and enter values in the query and X-Api-Key input sect
 
 ## Troubleshooting Failures
 
-All logging from the application code will be written to URL-api-engine.log in the same directory from where the service is being executed. Detailed logs regarding any failures and time of event, along with the call stack can be isolated in this log file.
+All logging from the application code will be written to **url-api-service.log** in the same directory from where the service is being executed. Detailed logs regarding any failures and time of event, along with the call stack and response/request information can be isolated in this log file.
 
 Additional debuggging can be enabled by tuning the CLI flag on for enabling debug level logs. This is advised where a critical error needs to be isolated, where additional visibility into the functionality will be beneficial. 
 
@@ -395,7 +396,26 @@ X-Peer: 127.0.0.1
 [2021-03-20 17:30:13,229] ERROR in URL-lookup-engine: Critical application error: Authentication service is not responding.
 ------------ END MESSAGE ------------
 ```
+Additionally, Memcached caching logs are also streamed to the log file. When a request is made, the following caching related logs will be printed on the main log file (url-api-service.log) immediately following the API request log:
+```
+url-api-service.log:
+[2021-03-21 17:37:22,939] DEBUG in application: initializing memcached client.
+[2021-03-21 17:37:22,939] DEBUG in application: checking cache to fetch URL categorization, to know if values exists in the cache
+```
+When a cached value is not available and a database query needs to be made, following is logged:
+```
+2021-03-21 17:36:12,953 INFO application Thread-2: cached values not available, will query the database
+```
+On the next API request, these values will be stored in the cache, and following will be printed on the logs on subsequent URL lookups for the same URL:
+```
+2021-03-21 17:37:22,940 INFO application Thread-8: cached values found in memcached
+```
 
+In case of failed authentication attempts to the server by providing unregistered API tokens in the HTTP header, following will be logged to the file:
+```
+2021-03-21 17:36:13,225 ERROR application Thread-9: User provided API token could not be authenticated with the stored hash on datastore
+```
+Please check the output of url-api-service.log for isolating any other debugs and errors.
 
 ## Tests
 
