@@ -523,7 +523,8 @@ INFO     API-unit-tests:API-unit-tests.py:111 {'data': '', 'info': {'engine': {'
 'response_status': {'code': 404, 'message': 'ERROR: The server does not support the functionality to fulfill this request. 
 This could be because the requested URL was not found on the server or a valid URL was not provided. If you entered the URL manually, please re-check the URL and 
 try again.'}}
-        PASSED                                                                                                                                                                                                                                            [100%]
+        PASSED                                                                                                                                                   
+                                                                                         [100%]
 =================================================================================================================== 9 passed in 0.51s ==
 ```
 
