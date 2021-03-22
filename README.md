@@ -115,7 +115,7 @@ $ sudo memcached -p 12345
 
 The MySQL database contains the URL categorization based on malware types. 
 
-The data dump provided contains URL lookup malware categorization for 12500+ URLs publicly available. 
+The data dump provided contains URL lookup malware categorization for **12500+ URLs** publicly available. The URL list and categorization data for this set of 12500+ URLs is provided as part of this repository in the SQL files. 
 
 The URLs are categorized as 'Benign', 'Malware', 'Spyware', 'Adware', 'Ransomware', 'Phishing'. Unresolved URL lookups will be returned as 'Uncategorized'. This froms the backend datastore for the URL Lookup API service.
 
